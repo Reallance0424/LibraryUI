@@ -1,0 +1,144 @@
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+local Library = {}
+
+Library.Settings = {
+    KeySystem = false, -- Change to true to enable key system
+    Key = "MySecretKey" -- Change this to set a custom key
+}
+
+local UI = Instance.new("ScreenGui")
+UI.Name = "CustomHub"
+UI.Parent = game:GetService("CoreGui")
+
+local function CreateWindow(Name)
+    local Window = Instance.new("Frame")
+    Window.Size = UDim2.new(0, 400, 0, 300)
+    Window.Position = UDim2.new(0.5, -200, 0.5, -150)
+    Window.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Window.BorderSizePixel = 0
+    Window.Parent = UI
+
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    Title.Text = Name
+    Title.TextSize = 16
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Parent = Window
+
+    local UIElements = Instance.new("Frame")
+    UIElements.Size = UDim2.new(1, 0, 1, -40)
+    UIElements.Position = UDim2.new(0, 0, 0, 40)
+    UIElements.BackgroundTransparency = 1
+    UIElements.Parent = Window
+
+    return {
+        Window = Window,
+        UIElements = UIElements
+    }
+end
+
+function Library:CreateTab(Name)
+    local Tab = Instance.new("Frame")
+    Tab.Size = UDim2.new(1, 0, 0, 40)
+    Tab.BackgroundTransparency = 1
+    Tab.Parent = UI
+
+    local TabButton = Instance.new("TextButton")
+    TabButton.Size = UDim2.new(0, 100, 0, 40)
+    TabButton.Text = Name
+    TabButton.Parent = Tab
+
+    return {
+        Tab = Tab,
+        Button = TabButton
+    }
+end
+
+function Library:CreateButton(Parent, Name, Callback)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -10, 0, 40)
+    Button.Text = Name
+    Button.Parent = Parent
+
+    Button.MouseButton1Click:Connect(Callback)
+    return Button
+end
+
+function Library:CreateToggle(Parent, Name, Default, Callback)
+    local Toggle = Instance.new("TextButton")
+    Toggle.Size = UDim2.new(1, -10, 0, 40)
+    Toggle.Text = Name .. " [ OFF ]"
+    Toggle.Parent = Parent
+
+    local State = Default
+
+    Toggle.MouseButton1Click:Connect(function()
+        State = not State
+        Toggle.Text = Name .. (State and " [ ON ]" or " [ OFF ]")
+        Callback(State)
+    end)
+
+    return Toggle
+end
+
+function Library:CreateSlider(Parent, Name, Min, Max, Default, Callback)
+    local Slider = Instance.new("TextButton")
+    Slider.Size = UDim2.new(1, -10, 0, 40)
+    Slider.Text = Name .. " : " .. Default
+    Slider.Parent = Parent
+
+    Slider.MouseButton1Click:Connect(function()
+        local NewValue = math.random(Min, Max)
+        Slider.Text = Name .. " : " .. NewValue
+        Callback(NewValue)
+    end)
+
+    return Slider
+end
+
+function Library:CreateTextbox(Parent, Name, Placeholder, Callback)
+    local TextBox = Instance.new("TextBox")
+    TextBox.Size = UDim2.new(1, -10, 0, 40)
+    TextBox.PlaceholderText = Placeholder
+    TextBox.Parent = Parent
+
+    TextBox.FocusLost:Connect(function()
+        Callback(TextBox.Text)
+    end)
+
+    return TextBox
+end
+
+-- **Key System**
+if Library.Settings.KeySystem then
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Size = UDim2.new(0, 300, 0, 50)
+    KeyInput.Position = UDim2.new(0.5, -150, 0.5, -25)
+    KeyInput.PlaceholderText = "Enter Key"
+    KeyInput.Parent = UI
+
+    local SubmitButton = Instance.new("TextButton")
+    SubmitButton.Size = UDim2.new(0, 300, 0, 50)
+    SubmitButton.Position = UDim2.new(0.5, -150, 0.5, 30)
+    SubmitButton.Text = "Submit"
+    SubmitButton.Parent = UI
+
+    SubmitButton.MouseButton1Click:Connect(function()
+        if KeyInput.Text == Library.Settings.Key then
+            KeyInput:Destroy()
+            SubmitButton:Destroy()
+        else
+            KeyInput.Text = "Invalid Key!"
+        end
+    end)
+
+    while KeyInput.Parent do
+        wait()
+    end
+end
+
+return Library
